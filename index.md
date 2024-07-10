@@ -1,6 +1,6 @@
 +++
 title =  "GCP Cloud Run: LOC Normalizer"
-date = "2024-04-28"
+date = "2024-07-10"
 description = "Normalizing a JSON into A DB.. Autonomously. "
 author = "Justin Napolitano"
 tags = ['git', 'python', 'gcp', 'bash','workflow automation', 'docker','containerization']
