@@ -71,6 +71,8 @@ If running locally I will need some creds in the enviornment.  I'll just create 
 
 
 
+
+
 ## Setup the Docker Container
 
 ### The Dockerfile
