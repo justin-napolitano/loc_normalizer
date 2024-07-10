@@ -1,37 +1,120 @@
 +++
-title =  "GCP Cloud Run Job Scraper"
+title =  "GCP Cloud Run: LOC Normalizer"
 date = "2024-04-28"
-description = "Running a scraper as a gcp cloud run job"
+description = "Normalizing a JSON into A DB.. Autonomously. "
 author = "Justin Napolitano"
 tags = ['git', 'python', 'gcp', 'bash','workflow automation', 'docker','containerization']
 images = ["images/feature-gcp.png"]
+categories = ["projects"]
 +++
 
 
-# Library of Congress Scraper Job
-This [repo](https://github.com/justin-napolitano/loc_scraper) scrapes the library of congress for all of the US Supreme Court Cases available on their platform. I intent to use this data to create a research tool to better understand the corpus of text. 
+# Library of Congress Normalizer Job
 
-## Quick History of this project
-I had started work on this as an undergraduate at university, but the chatbot apis were not yet available.. and training modesl were far too expensive. I think with current tech I will be able to complete this project in about a week or two. 
+This [repo](https://github.com/justin-napolitano/loc_normalizer) normalizes the existing library of congress schema into a db that wil then be used to construct a knowledge graph of supreme court law. 
 
-### What this script does
-This script simply calls the library of congress's public api with a search query and iterates through the search results.
+## Plan
 
-Each result is transformed to a json string and then dropped into a gcp bucket that can be accessed by other tasks to be built into this workflow. 
+1. Setup a venv to run locally
+2. Install requirements
+3. Write out the script to interface with gcp
+4. Set up a docker container and test locally
+5. build the image
+6. upload to gcp
+7. create the job
 
-## The GCP Component
-This workflow could be built for my local infrastructure or for a vm somewhere in the cloud... but I've chosen to design each task as a gcp job that will permit an enterprise scale workflow to run.
+## Setup the venv
 
-The reason for doing this is really just to understand how these jobs work. I will write a subsequent post detailing how this job really works. 
+### Install
+I installed virtualenv locally on ubuntu
 
-### Why
-Because I want to push myself a bit... but this also could be used as proof of concept tool that can easily be adapted to the needs of enterprise clients or research institutions.
+### Create
+I then run ```virtualenv {path to venvs}```
+
+### Activate
+
+Then source the venv bin to activate
+
+```source {path to venv}/bin/activate```
+   
+### Install requirements
+
+``` pip install -r requirements.txt```
+
+## Write out the Script
+
+### Steps
+
+1. Access the loc_scraper Bucket
+2. Grab a json blob
+3. Process the blob
+4. Move the blob to a processed bucket
+
+
+### Data Organization
+
+I want to create workflow class with the following methods
+
+1. get_creds
+2. grab_blob
+3. process_blob
+4. move_blob
+
+The process_blob method will be a lot of work.  I might just flatten the json and dump into a table. I will then write a normalization workflow
+
+
+### Get Creds
+
+If running locally I will need some creds in the enviornment.  I'll just create a .env file and import at runtime if running locally. 
+
+
+
+
+
+## Setup the Docker Container
+
+### The Dockerfile
+
+Also available on [github](https://github.com/justin-napolitano/loc_normalizer/blob/main/Dockerfile)
+
+
+```
+# # Use the Alpine Linux base image
+# FROM alpine:latest
+
+# # Set the working directory inside the container
+# WORKDIR /app
+
+# # Copy a simple script that prints "Hello, World!" into the container
+# COPY /src/hello.sh .
+
+# # Make the script executable
+# RUN chmod +x hello.sh
+
+# # Define the command to run when the container starts
+# CMD ["./hello.sh"]
+
+
+# Use the official Python image from Docker Hub
+FROM python:3.10-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY ./src /app
+COPY requirements.txt /app
+
+# Install any needed dependencies specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Run the Python script when the container launches
+CMD ["python", "loc_scraper.py"]
+```
+
 
 ## Quickstart
 
-### Download the repo
-
-Copy the repo at [github.com/justin-napolitano/loc_scraper](https://github.com/justin-napolitano/loc_scraper) to get started
 
 ### Gcloud cli
 After this you will have to install gcloud cli and configure you're local environment. I will write up some scripts in a subsequent post to automate this process... but for the time being check out this ["link"](https://cloud.google.com/sdk/docs/install)
