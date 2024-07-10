@@ -55,9 +55,20 @@ def main():
     logging_client = initialize_google_cloud_logging_client(project_id,credentials_path)
     logging_client.setup_logging()
 
+    # Initialize the Google Cloud Client
     gcs_client = initialize_gcs_client(project_id, credentials_path)
+    
+    #List Buckets for testing
     list_gcs_buckets(gcs_client)
-    create_gcs_bucket(gcs_client, bucket_name)
+
+    # Pop a blob to test ability to access within a bucket
+
+    # Grab A blob from the heap
+    first_blob = gcs_client.pop_blob(bucket_name)
+    if first_blob:
+        print(f"First blob name: {first_blob.name}")
+
+    # create_gcs_bucket(gcs_client, bucket_name)
 
 if __name__ == "__main__":
     main()
