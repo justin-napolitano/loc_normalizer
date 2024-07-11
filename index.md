@@ -1,7 +1,7 @@
 +++
-title =  "GCP Cloud Run: LOC Normalizer"
-date = "2024-04-28"
-description = "Normalizing a JSON into A DB.. Autonomously. "
+title =  "GCP Cloud Run: LOC Flattener"
+date = "2024-07-11"
+description = "Flattening and injesting JSON into data lake.. Autonomously. "
 author = "Justin Napolitano"
 tags = ['git', 'python', 'gcp', 'bash','workflow automation', 'docker','containerization']
 images = ["images/feature-gcp.png"]
@@ -211,6 +211,38 @@ pip install -r ../requirements.txt
     Requirement already satisfied: six==1.16.0 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 27)) (1.16.0)
     Requirement already satisfied: soupsieve==2.5 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 28)) (2.5)
     Requirement already satisfied: urllib3==2.2.1 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 29)) (2.2.1)
+    Requirement already satisfied: google-cloud-bigquery==3.25.0 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 40)) (3.25.0)
+    Collecting numpy==2.0.0 (from -r ../requirements.txt (line 51))
+      Downloading numpy-2.0.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
+    [2K     [38;2;114;156;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m60.9/60.9 kB[0m [31m1.1 MB/s[0m eta [36m0:00:00[0m[31m1.1 MB/s[0m eta [36m0:00:01[0m
+    [?25hCollecting packaging==24.1 (from -r ../requirements.txt (line 52))
+      Downloading packaging-24.1-py3-none-any.whl.metadata (3.2 kB)
+    Requirement already satisfied: pandas==2.2.2 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 53)) (2.2.2)
+    Requirement already satisfied: pyarrow==16.1.0 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 56)) (16.1.0)
+    Collecting python-dateutil==2.9.0.post0 (from -r ../requirements.txt (line 59))
+      Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+    Requirement already satisfied: pytz==2024.1 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 60)) (2024.1)
+    Requirement already satisfied: tzdata==2024.1 in /home/cobra/.config/jupyterlab-desktop/jlab_server/lib/python3.12/site-packages (from -r ../requirements.txt (line 65)) (2024.1)
+    Downloading numpy-2.0.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (19.0 MB)
+    [2K   [38;2;114;156;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m19.0/19.0 MB[0m [31m2.2 MB/s[0m eta [36m0:00:00[0mm eta [36m0:00:01[0m[36m0:00:01[0m
+    [?25hDownloading packaging-24.1-py3-none-any.whl (53 kB)
+    [2K   [38;2;114;156;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m54.0/54.0 kB[0m [31m1.7 MB/s[0m eta [36m0:00:00[0m
+    [?25hDownloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+    [2K   [38;2;114;156;31m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m229.9/229.9 kB[0m [31m2.3 MB/s[0m eta [36m0:00:00[0m MB/s[0m eta [36m0:00:01[0m
+    [?25hInstalling collected packages: python-dateutil, packaging, numpy
+      Attempting uninstall: python-dateutil
+        Found existing installation: python-dateutil 2.9.0
+        Uninstalling python-dateutil-2.9.0:
+          Successfully uninstalled python-dateutil-2.9.0
+      Attempting uninstall: packaging
+        Found existing installation: packaging 24.0
+        Uninstalling packaging-24.0:
+          Successfully uninstalled packaging-24.0
+      Attempting uninstall: numpy
+        Found existing installation: numpy 1.26.4
+        Uninstalling numpy-1.26.4:
+          Successfully uninstalled numpy-1.26.4
+    Successfully installed numpy-2.0.0 packaging-24.1 python-dateutil-2.9.0.post0
     Note: you may need to restart the kernel to use updated packages.
 
 
@@ -331,7 +363,7 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
 
 
 #### Access the Blobs within the bucket
@@ -438,7 +470,7 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
     First valid blob selected: last_page.txt
     First blob name: last_page.txt
 
@@ -535,9 +567,9 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
 
 
 ### Download the data
@@ -630,10 +662,10 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
-    Blob 'result-1-.json' downloaded to memory.
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
+    Blob 'result-10.json' downloaded to memory.
     b'{"breadcrumbs": [{"Library of Congress": "https://www.loc.gov"}, {"Digital Collections": "https://ww'
 
 
@@ -695,10 +727,10 @@ print(blob_data[0:100])
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
-    Blob 'result-1-.json' downloaded to memory.
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
+    Blob 'result-10.json' downloaded to memory.
     b'{"breadcrumbs": [{"Library of Congress": "https://www.loc.gov"}, {"Digital Collections": "https://ww'
 
 
@@ -723,99 +755,96 @@ json_data["results"][0]
 
 
     {'access_restricted': False,
-     'aka': ['http://www.loc.gov/item/usrep101572/',
-      'http://www.loc.gov/resource/usrep.usrep101572/',
-      'http://www.loc.gov/item/usrep.usrep101572/'],
+     'aka': ['http://www.loc.gov/item/usrep308213/',
+      'http://www.loc.gov/resource/usrep.usrep308213/',
+      'http://www.loc.gov/item/usrep.usrep308213/'],
      'campaigns': [],
-     'contributor': ['supreme court of the united states',
-      'field, stephen johnson'],
-     'date': '1879',
-     'dates': ['1879'],
+     'contributor': ['stone, harlan fiske', 'supreme court of the united states'],
+     'date': '1939',
+     'dates': ['1939'],
      'digitized': True,
-     'extract_timestamp': '2023-12-04T18:39:03.474Z',
-     'group': ['usrep101', 'us-report'],
+     'extract_timestamp': '2023-12-04T18:41:50.547Z',
+     'group': ['usrep103', 'us-report'],
      'hassegments': False,
-     'id': 'http://www.loc.gov/item/usrep101572/',
-     'image_url': ['https://tile.loc.gov/storage-services/service/ll/usrep/usrep101/usrep101572/usrep101572.gif#h=150&w=100'],
-     'index': 1,
+     'id': 'http://www.loc.gov/item/usrep308213/',
+     'image_url': ['https://tile.loc.gov/storage-services/service/ll/usrep/usrep308/usrep308213/usrep308213.gif#h=150&w=100'],
+     'index': 631,
      'item': {'call_number': ['Call Number: KF101',
-       'Series: Accounting Law',
-       'Series: Volume 101'],
-      'contributors': ['Field, Stephen Johnson (Judge)',
+       'Series: Administrative Law',
+       'Series: Volume 308'],
+      'contributors': ['Stone, Harlan Fiske (Judge)',
        'Supreme Court of the United States (Author)'],
-      'created_published': ['1879'],
-      'date': '18790000',
+      'created_published': ['1939'],
+      'date': '19390000',
       'format': 'periodical',
       'genre': ['Periodical'],
       'language': ['eng'],
-      'notes': ['Description: U.S. Reports Volume 101; October Term, 1879; Cowdrey v. Vandenburgh'],
+      'notes': ['Description: U.S. Reports Volume 308; October Term, 1939; Union Stock Yard & Transit Co. v. United States et al.'],
       'rights': 'no known restrictions on use or reproduction',
       'source_collection': 'U.S. Reports',
-      'subjects': ['Contracts',
+      'subjects': ['Livestock',
        'Law',
+       'Railroads',
        'Law Library',
        'Supreme Court',
        'United States',
        'Government Documents',
        'Judicial review and appeals',
-       'Roads and highways',
-       'Accounting and auditing',
-       'State and local government',
-       'Public works',
+       'Agency',
+       'Tariffs',
+       'Interstate commerce',
+       'Administrative law and regulatory procedure',
        'U.S. Reports',
        'Common law',
        'Court opinions',
        'Judicial decisions',
        'Court cases',
        'Court decisions',
-       'Equity',
-       'Estoppel',
-       'Municipal corporations and associations',
-       'Non-negotiable demand',
+       'Interstate Commerce Commission (I.C.C.)',
+       'Agency jurisdiction',
        'Periodical'],
-      'title': 'U.S. Reports: Cowdrey v. Vandenburgh, 101 U.S. 572 (1880).'},
+      'title': 'U.S. Reports: Union Stock Yard Co. v. U.S., 308 U.S. 213 (1939).'},
      'language': ['english'],
      'mime_type': ['image/gif', 'application/pdf'],
      'online_format': ['image', 'pdf'],
      'original_format': ['periodical'],
      'other_title': [],
-     'partof': ['u.s. reports: accounting law',
-      'u.s. reports: volume 101',
+     'partof': ['u.s. reports: volume 308',
+      'u.s. reports: administrative law',
       'law library of congress',
       'united states reports (official opinions of the u.s. supreme court)'],
      'resources': [{'files': 1,
-       'image': 'https://tile.loc.gov/storage-services/service/ll/usrep/usrep101/usrep101572/usrep101572.gif',
-       'pdf': 'https://tile.loc.gov/storage-services/service/ll/usrep/usrep101/usrep101572/usrep101572.pdf',
-       'url': 'https://www.loc.gov/resource/usrep.usrep101572/'}],
-     'shelf_id': 'Call Number: KF101 Series: Accounting Law Series: Volume 101',
-     'subject': ['accounting and auditing',
-      'accounting law',
+       'image': 'https://tile.loc.gov/storage-services/service/ll/usrep/usrep308/usrep308213/usrep308213.gif',
+       'pdf': 'https://tile.loc.gov/storage-services/service/ll/usrep/usrep308/usrep308213/usrep308213.pdf',
+       'url': 'https://www.loc.gov/resource/usrep.usrep308213/'}],
+     'shelf_id': 'Call Number: KF101 Series: Administrative Law Series: Volume 308',
+     'subject': ['administrative law',
+      'livestock',
+      'railroads',
       'supreme court',
       'united states',
       'court opinions',
       'periodical',
-      'state and local government',
+      'agency',
+      'interstate commerce',
       'court cases',
       'judicial decisions',
-      'equity',
       'law library',
-      'roads and highways',
-      'municipal corporations and associations',
+      'interstate commerce commission (i.c.c.)',
       'judicial review and appeals',
-      'contracts',
-      'public works',
       'government documents',
-      'estoppel',
+      'administrative law and regulatory procedure',
       'law',
       'common law',
       'court decisions',
       'u.s. reports',
-      'non-negotiable demand'],
-     'subject_major_case_topic': ['accounting law'],
-     'timestamp': '2023-12-04T18:50:24.710Z',
-     'title': 'U.S. Reports: Cowdrey v. Vandenburgh, 101 U.S. 572 (1880).',
+      'tariffs',
+      'agency jurisdiction'],
+     'subject_major_case_topic': ['administrative law'],
+     'timestamp': '2023-12-04T19:05:12.397Z',
+     'title': 'U.S. Reports: Union Stock Yard Co. v. U.S., 308 U.S. 213 (1939).',
      'type': ['periodical'],
-     'url': 'https://www.loc.gov/item/usrep101572/'}
+     'url': 'https://www.loc.gov/item/usrep308213/'}
 
 
 
@@ -892,19 +921,19 @@ df_item
   <tbody>
     <tr>
       <th>0</th>
-      <td>[Call Number: KF101, Series: Accounting Law, S...</td>
-      <td>[Field, Stephen Johnson (Judge), Supreme Court...</td>
-      <td>[1879]</td>
-      <td>18790000</td>
+      <td>[Call Number: KF101, Series: Administrative La...</td>
+      <td>[Stone, Harlan Fiske (Judge), Supreme Court of...</td>
+      <td>[1939]</td>
+      <td>19390000</td>
       <td>periodical</td>
       <td>[Periodical]</td>
       <td>[eng]</td>
-      <td>[Description: U.S. Reports Volume 101; October...</td>
+      <td>[Description: U.S. Reports Volume 308; October...</td>
       <td>no known restrictions on use or reproduction</td>
       <td>U.S. Reports</td>
-      <td>[Contracts, Law, Law Library, Supreme Court, U...</td>
-      <td>U.S. Reports: Cowdrey v. Vandenburgh, 101 U.S....</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>[Livestock, Law, Railroads, Law Library, Supre...</td>
+      <td>U.S. Reports: Union Stock Yard Co. v. U.S., 30...</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
   </tbody>
 </table>
@@ -951,8 +980,8 @@ df_resources
       <td>1</td>
       <td>https://tile.loc.gov/storage-services/service/...</td>
       <td>https://tile.loc.gov/storage-services/service/...</td>
-      <td>https://www.loc.gov/resource/usrep.usrep101572/</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>https://www.loc.gov/resource/usrep.usrep308213/</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
   </tbody>
 </table>
@@ -1013,26 +1042,26 @@ df_main
     <tr>
       <th>0</th>
       <td>False</td>
-      <td>[http://www.loc.gov/item/usrep101572/, http://...</td>
+      <td>[http://www.loc.gov/item/usrep308213/, http://...</td>
       <td>[]</td>
-      <td>[supreme court of the united states, field, st...</td>
-      <td>1879</td>
-      <td>[1879]</td>
+      <td>[stone, harlan fiske, supreme court of the uni...</td>
+      <td>1939</td>
+      <td>[1939]</td>
       <td>True</td>
-      <td>2023-12-04T18:39:03.474Z</td>
-      <td>[usrep101, us-report]</td>
+      <td>2023-12-04T18:41:50.547Z</td>
+      <td>[usrep103, us-report]</td>
       <td>False</td>
       <td>...</td>
-      <td>[1879]</td>
-      <td>18790000</td>
+      <td>[1939]</td>
+      <td>19390000</td>
       <td>periodical</td>
       <td>[Periodical]</td>
       <td>[eng]</td>
-      <td>[Description: U.S. Reports Volume 101; October...</td>
+      <td>[Description: U.S. Reports Volume 308; October...</td>
       <td>no known restrictions on use or reproduction</td>
       <td>U.S. Reports</td>
-      <td>[Contracts, Law, Law Library, Supreme Court, U...</td>
-      <td>U.S. Reports: Cowdrey v. Vandenburgh, 101 U.S....</td>
+      <td>[Livestock, Law, Railroads, Law Library, Supre...</td>
+      <td>U.S. Reports: Union Stock Yard Co. v. U.S., 30...</td>
     </tr>
   </tbody>
 </table>
@@ -1086,17 +1115,17 @@ df_call_number
     <tr>
       <th>0</th>
       <td>Call Number: KF101</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>Series: Accounting Law</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Series: Administrative Law</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>Series: Volume 101</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Series: Volume 308</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
   </tbody>
 </table>
@@ -1145,113 +1174,108 @@ df_subjects
   <tbody>
     <tr>
       <th>0</th>
-      <td>Contracts</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Livestock</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>1</th>
       <td>Law</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>Law Library</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Railroads</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>Supreme Court</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Law Library</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>United States</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Supreme Court</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>Government Documents</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>United States</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>Judicial review and appeals</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Government Documents</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>Roads and highways</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Judicial review and appeals</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>Accounting and auditing</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Agency</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>State and local government</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Tariffs</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>Public works</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Interstate commerce</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>U.S. Reports</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Administrative law and regulatory procedure</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>12</th>
-      <td>Common law</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>U.S. Reports</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>13</th>
-      <td>Court opinions</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Common law</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>14</th>
-      <td>Judicial decisions</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Court opinions</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>15</th>
-      <td>Court cases</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Judicial decisions</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>16</th>
-      <td>Court decisions</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Court cases</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>17</th>
-      <td>Equity</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Court decisions</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>18</th>
-      <td>Estoppel</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Interstate Commerce Commission (I.C.C.)</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>19</th>
-      <td>Municipal corporations and associations</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Agency jurisdiction</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
     <tr>
       <th>20</th>
-      <td>Non-negotiable demand</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
-    </tr>
-    <tr>
-      <th>21</th>
       <td>Periodical</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
   </tbody>
 </table>
@@ -1295,8 +1319,8 @@ df_notes
   <tbody>
     <tr>
       <th>0</th>
-      <td>Description: U.S. Reports Volume 101; October ...</td>
-      <td>http://www.loc.gov/item/usrep101572/</td>
+      <td>Description: U.S. Reports Volume 308; October ...</td>
+      <td>http://www.loc.gov/item/usrep308213/</td>
     </tr>
   </tbody>
 </table>
@@ -1445,10 +1469,10 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
-    Blob 'result-1-.json' downloaded to memory.
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
+    Blob 'result-10.json' downloaded to memory.
     b'{"breadcrumbs": [{"Library of Congress": "https://www.loc.gov"}, {"Digital Collections": "https://ww'
 
 
@@ -1587,11 +1611,11 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'smart-axis-421517_cloudbuild']
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
     Dataset supreme_court created.
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
-    Blob 'result-1-.json' downloaded to memory.
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
+    Blob 'result-10.json' downloaded to memory.
     Table items_staging created in dataset supreme_court.
     Table resources_staging created in dataset supreme_court.
     Table call_numbers_staging created in dataset supreme_court.
@@ -1600,9 +1624,9 @@ if __name__ == "__main__":
     Table notes_staging created in dataset supreme_court.
     Loaded 70 rows into supreme_court:items_staging.
     Loaded 70 rows into supreme_court:resources_staging.
-    Loaded 227 rows into supreme_court:call_numbers_staging.
-    Loaded 137 rows into supreme_court:contributors_staging.
-    Loaded 1558 rows into supreme_court:subjects_staging.
+    Loaded 210 rows into supreme_court:call_numbers_staging.
+    Loaded 138 rows into supreme_court:contributors_staging.
+    Loaded 1570 rows into supreme_court:subjects_staging.
     Loaded 70 rows into supreme_court:notes_staging.
 
 
@@ -1875,11 +1899,11 @@ if __name__ == "__main__":
 ```
 
     trying creds file
-    Buckets: ['loc-scraper', 'loc_flattener_processed', 'smart-axis-421517_cloudbuild']
+    Buckets: ['loc-scraper', 'loc_flattener_processed', 'processed_results', 'smart-axis-421517_cloudbuild']
     Dataset supreme_court created.
-    First valid blob selected: result-1-.json
-    First blob name: result-1-.json
-    Blob 'result-1-.json' downloaded to memory.
+    First valid blob selected: result-10.json
+    First blob name: result-10.json
+    Blob 'result-10.json' downloaded to memory.
     Table items_staging created in dataset supreme_court.
     Table resources_staging created in dataset supreme_court.
     Table call_numbers_staging created in dataset supreme_court.
@@ -1888,11 +1912,11 @@ if __name__ == "__main__":
     Table notes_staging created in dataset supreme_court.
     Loaded 70 rows into supreme_court:items_staging.
     Loaded 70 rows into supreme_court:resources_staging.
-    Loaded 227 rows into supreme_court:call_numbers_staging.
-    Loaded 137 rows into supreme_court:contributors_staging.
-    Loaded 1558 rows into supreme_court:subjects_staging.
+    Loaded 210 rows into supreme_court:call_numbers_staging.
+    Loaded 138 rows into supreme_court:contributors_staging.
+    Loaded 1570 rows into supreme_court:subjects_staging.
     Loaded 70 rows into supreme_court:notes_staging.
-    Blob result-1-.json moved to loc_flattener_processed and deleted from loc-scraper
+    Blob result-10.json moved to loc_flattener_processed and deleted from loc-scraper
 
 
 #### Add while true logic and clean up the script
@@ -2129,6 +2153,96 @@ if __name__ == "__main__":
 
 ```
 
-### Next Steps
+### GCP Cloud Run 
 
-Run this in gcp cloud run
+I want this to run autonomously for me on GCP
+
+To do this I will need to 
+
+1. Create a DockerFile
+2. Build the image on gcp
+3. create a job to run it
+
+### Create the DockerFile
+
+My Dockerfile looks something like this. Ignore the quickstart code thta i've commente dout. I use that as a reference.
+
+[GH Link](https://raw.githubusercontent.com/justin-napolitano/loc_normalizer/main/Dockerfile)
+
+
+```yaml
+# # Use the Alpine Linux base image
+# FROM alpine:latest
+
+# # Set the working directory inside the container
+# WORKDIR /app
+
+# # Copy a simple script that prints "Hello, World!" into the container
+# COPY /src/hello.sh .
+
+# # Make the script executable
+# RUN chmod +x hello.sh
+
+# # Define the command to run when the container starts
+# CMD ["./hello.sh"]
+
+
+# Use the official Python image from Docker Hub
+FROM python:3.10-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY ./src /app
+COPY requirements.txt /app
+
+# Install any needed dependencies specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Run the Python script when the container launches
+CMD ["python", "loc_scraper.py"]
+```
+
+
+#### Using Cloudbuild
+
+I want to automate the entire build and deploy process by passing the steps to google's cloud build service.  
+
+My [file](https://github.com/justin-napolitano/loc_normalizer/blob/main/src/cloudbuild.yaml) looks like this...
+
+```yaml
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/$IMAGE_NAME', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/$IMAGE_NAME']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['run', 'deploy', '$SERVICE_NAME',
+           '--image', 'gcr.io/$PROJECT_ID/$IMAGE_NAME',
+           '--platform', 'managed',
+           '--region', '$REGION',
+           '--allow-unauthenticated']
+
+substitutions:
+  _PROJECT_ID: 'smart-axis-421517'
+  _IMAGE_NAME: 'loc-flattener-image'
+  _SERVICE_NAME: 'loc-flattener'
+  _REGION: 'us-west2'  # e.g., us-central1
+
+timeout: '1200s'
+```
+
+#### Submit the build
+
+To sbumit the build run the following from the cli or save to as script.
+
+```bash
+gcloud builds submit --config cloudbuild.yaml .
+```
+
+
+```python
+
+```
