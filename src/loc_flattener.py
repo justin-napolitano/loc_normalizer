@@ -150,15 +150,22 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     df_notes_list = []
 
     for result in results:
-        df_main_list.append(normalize_main(result))
-        df_item_list.append(normalize_item(result))
-        df_resources_list.append(normalize_resources(result))
-        df_call_number_list.append(normalize_call_numbers(result))
-        df_contributors_list.append(normalize_contributors(result))
-        df_subjects_list.append(normalize_subjects(result))
-        df_notes_list.append(normalize_notes(result))
+        try :
+            logging.info("Processing a result")
+            df_main_list.append(normalize_main(result))
+            df_item_list.append(normalize_item(result))
+            df_resources_list.append(normalize_resources(result))
+            df_call_number_list.append(normalize_call_numbers(result))
+            df_contributors_list.append(normalize_contributors(result))
+            df_subjects_list.append(normalize_subjects(result))
+            df_notes_list.append(normalize_notes(result))
+        except Exception as e:
+            logging.info(f"Exception : {e}")
+            logging.info("SKIPPING")
+            continue
 
     # Concatenate all DataFrames
+    logging.info("Concatenating Data Frames")
     df_main = pd.concat(df_main_list, ignore_index=True)
     df_item = pd.concat(df_item_list, ignore_index=True)
     df_resources = pd.concat(df_resources_list, ignore_index=True)
@@ -169,6 +176,7 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
 
     # Load DataFrames into BigQuery tables
     # bq_client.load_dataframe_to_table(dataset_id, main_table_id, df_main)
+    logging.info("Loading Dataframes")
     bq_client.load_dataframe_to_table(dataset_id, item_table_id, df_item)
     bq_client.load_dataframe_to_table(dataset_id, resources_table_id, df_resources)
     bq_client.load_dataframe_to_table(dataset_id, call_number_table_id, df_call_number)
@@ -177,6 +185,7 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     bq_client.load_dataframe_to_table(dataset_id, notes_table_id, df_notes)
 
     # Move the blob to the processed_results bucket
+    logging.info("Moving Processed Blob")
     gcs_client.copy_blob(bucket_name, first_blob.name, processed_bucket_name, first_blob.name)
     gcs_client.delete_blob(bucket_name, first_blob.name)
     logging.info(f"Blob {first_blob.name} moved to {processed_bucket_name} and deleted from {bucket_name}")
