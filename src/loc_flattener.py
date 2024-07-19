@@ -77,6 +77,14 @@ def normalize_notes(result):
     df_notes['id'] = result['id']  # Add 'id' for joining
     return df_notes
 
+# Function to check if a table exists
+def table_exists(client, dataset_id, table_id):
+    try:
+        client.get_table(f"{dataset_id}.{table_id}")
+        return True
+    except bigquery.NotFound:
+        return False
+
 def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id):
     # Define the BigQuery table schema
     main_table_id = "results_staging"
@@ -93,7 +101,7 @@ def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client,
     json_data = json.loads(blob_data)
     result = json_data["results"][0]  # Use the first result as a sample
 
-    df_main = normalize_main(result)
+    # df_main = normalize_main(result)
     df_item = normalize_item(result)
     df_resources = normalize_resources(result)
     df_call_number = normalize_call_numbers(result)
@@ -101,7 +109,7 @@ def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client,
     df_subjects = normalize_subjects(result)
     df_notes = normalize_notes(result)
 
-    main_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_main.columns]
+    # main_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_main.columns]
     item_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_item.columns]
     resources_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_resources.columns]
     call_number_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_call_number.columns]
@@ -109,14 +117,34 @@ def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client,
     subjects_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_subjects.columns]
     notes_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_notes.columns]
 
-    # Create BigQuery tables
-    # bq_client.create_table(dataset_id, main_table_id, main_schema)
-    bq_client.create_table(dataset_id, item_table_id, item_schema)
-    bq_client.create_table(dataset_id, resources_table_id, resources_schema)
-    bq_client.create_table(dataset_id, call_number_table_id, call_number_schema)
-    bq_client.create_table(dataset_id, contributors_table_id, contributors_schema)
-    bq_client.create_table(dataset_id, subjects_table_id, subjects_schema)
-    bq_client.create_table(dataset_id, notes_table_id, notes_schema)
+    # Define table IDs and schemas
+    table_definitions = [
+        # (main_table_id, main_schema),
+        (item_table_id, item_schema),
+        (resources_table_id, resources_schema),
+        (call_number_table_id, call_number_schema),
+        (contributors_table_id, contributors_schema),
+        (subjects_table_id, subjects_schema),
+        (notes_table_id, notes_schema)
+    ]
+
+    for table_id, schema in table_definitions:
+
+        if bq_client.table_exists(dataset_id, table_id):
+            logging.info("Table : {item_table_id} already exists")
+        else:
+            bq_client.create_table(dataset_id, table_id, schema)
+            logging.info("Table : {item_table_id} created")
+
+    
+    # # Create BigQuery tables
+    # # bq_client.create_table(dataset_id, main_table_id, main_schema)
+    # bq_client.create_table(dataset_id, item_table_id, item_schema)
+    # bq_client.create_table(dataset_id, resources_table_id, resources_schema)
+    # bq_client.create_table(dataset_id, call_number_table_id, call_number_schema)
+    # bq_client.create_table(dataset_id, contributors_table_id, contributors_schema)
+    # bq_client.create_table(dataset_id, subjects_table_id, subjects_schema)
+    # bq_client.create_table(dataset_id, notes_table_id, notes_schema)
 
 def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patterns_file, dataset_id):
     main_table_id = "results_staging"
@@ -217,6 +245,8 @@ def main():
     # Create tables and schemas
     create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id)
     # def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id):
+
+    # quit()
 
     # Process blobs in a loop
     while process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patterns_file, dataset_id):
