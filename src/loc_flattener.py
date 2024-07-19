@@ -131,10 +131,10 @@ def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client,
     for table_id, schema in table_definitions:
 
         if bq_client.table_exists(dataset_id, table_id):
-            logging.info("Table : {item_table_id} already exists")
+            logging.info(f"Table : {item_table_id} already exists")
         else:
             bq_client.create_table(dataset_id, table_id, schema)
-            logging.info("Table : {item_table_id} created")
+            logging.info(f"Table : {item_table_id} created")
 
     
     # # Create BigQuery tables
@@ -169,7 +169,7 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     results = json_data["results"]
 
     # Initialize lists to hold DataFrames
-    df_main_list = []
+    # df_main_list = []
     df_item_list = []
     df_resources_list = []
     df_call_number_list = []
@@ -180,7 +180,7 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     for result in results:
         try :
             logging.info("Processing a result")
-            df_main_list.append(normalize_main(result))
+            # df_main_list.append(normalize_main(result))
             df_item_list.append(normalize_item(result))
             df_resources_list.append(normalize_resources(result))
             df_call_number_list.append(normalize_call_numbers(result))
@@ -194,7 +194,7 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
 
     # Concatenate all DataFrames
     logging.info("Concatenating Data Frames")
-    df_main = pd.concat(df_main_list, ignore_index=True)
+    # df_main = pd.concat(df_main_list, ignore_index=True)
     df_item = pd.concat(df_item_list, ignore_index=True)
     df_resources = pd.concat(df_resources_list, ignore_index=True)
     df_call_number = pd.concat(df_call_number_list, ignore_index=True)
@@ -202,15 +202,45 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     df_subjects = pd.concat(df_subjects_list, ignore_index=True)
     df_notes = pd.concat(df_notes_list, ignore_index=True)
 
+    # Create the schemas just to be safe
+
+    # main_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_main.columns]
+    item_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_item.columns]
+    resources_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_resources.columns]
+    call_number_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_call_number.columns]
+    contributors_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_contributors.columns]
+    subjects_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_subjects.columns]
+    notes_schema = [bigquery.SchemaField(name, bigquery.enums.SqlTypeNames.STRING) for name in df_notes.columns]
+
+    # Define table IDs and schemas
+    table_definitions = [
+        # (main_table_id, main_schema),
+        (item_table_id, item_schema),
+        (resources_table_id, resources_schema),
+        (call_number_table_id, call_number_schema),
+        (contributors_table_id, contributors_schema),
+        (subjects_table_id, subjects_schema),
+        (notes_table_id, notes_schema)
+    ]
     # Load DataFrames into BigQuery tables
     # bq_client.load_dataframe_to_table(dataset_id, main_table_id, df_main)
     logging.info("Loading Dataframes")
-    bq_client.load_dataframe_to_table(dataset_id, item_table_id, df_item)
-    bq_client.load_dataframe_to_table(dataset_id, resources_table_id, df_resources)
-    bq_client.load_dataframe_to_table(dataset_id, call_number_table_id, df_call_number)
-    bq_client.load_dataframe_to_table(dataset_id, contributors_table_id, df_contributors)
-    bq_client.load_dataframe_to_table(dataset_id, subjects_table_id, df_subjects)
-    bq_client.load_dataframe_to_table(dataset_id, notes_table_id, df_notes)
+
+    for table_id, schema in table_definitions:
+
+        if bq_client.table_exists(dataset_id, table_id):
+            logging.info("Table : {item_table_id} already exists")
+        else:
+            bq_client.create_table(dataset_id, table_id, schema)
+            logging.info("Table : {item_table_id} created")
+
+    
+    # bq_client.load_dataframe_to_table(dataset_id, item_table_id, df_item)
+    # bq_client.load_dataframe_to_table(dataset_id, resources_table_id, df_resources)
+    # bq_client.load_dataframe_to_table(dataset_id, call_number_table_id, df_call_number)
+    # bq_client.load_dataframe_to_table(dataset_id, contributors_table_id, df_contributors)
+    # bq_client.load_dataframe_to_table(dataset_id, subjects_table_id, df_subjects)
+    # bq_client.load_dataframe_to_table(dataset_id, notes_table_id, df_notes)
 
     # Move the blob to the processed_results bucket
     logging.info("Moving Processed Blob")
@@ -222,6 +252,9 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
 
 def main():
     # logging.info(f"I wonder if the ARg parser is killing it...")
+    # Set up logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     parser = argparse.ArgumentParser(description='Run the script locally or in the cloud.')
     parser.add_argument('--local', action='store_true', help='Run the script locally with credentials path')
     args = parser.parse_args()
@@ -239,8 +272,8 @@ def main():
 
     
     # Initialize logging
-    logging_client = initialize_google_cloud_logging_client(project_id, credentials_path)
-    logging_client.setup_logging()
+    # # logging_client = initialize_google_cloud_logging_client(project_id, credentials_path)
+    # logging_client.setup_logging()
 
     logging.info(f"logging initialized")
     # List Buckets for testing
@@ -264,9 +297,9 @@ def main():
 
     logging.info(f"dataset created")
     
-    logging.info(f"Creating table schemas")
+    # logging.info(f"Creating table schemas")
     # Create tables and schemas
-    create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id)
+    # create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id)
     # def create_tables_and_schemas(bq_client, bucket_name, patterns_file, gcs_client, dataset_id):
 
     logging.info(f"schema created")
