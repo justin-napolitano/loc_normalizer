@@ -230,8 +230,8 @@ def main():
     dataset_id = "supreme_court"
     patterns_file = os.getenv('PATTERNS_FILE', 'exclude.txt')
     project_id = os.getenv('GCP_PROJECT_ID', 'smart-axis-421517')
-    bucket_name = os.getenv('BUCKET_NAME', 'loc-scraper')
-    processed_bucket_name = "processed_results"
+    bucket_name = os.getenv('BUCKET_NAME', 'processed_results')
+    processed_bucket_name = "loc_flattener_processed"
 
     credentials_path = None
     if args.local:
