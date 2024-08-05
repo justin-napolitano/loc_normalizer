@@ -229,18 +229,18 @@ def process_blob(gcs_client, bq_client, bucket_name, processed_bucket_name, patt
     for table_id, schema in table_definitions:
 
         if bq_client.table_exists(dataset_id, table_id):
-            logging.info("Table : {item_table_id} already exists")
+            logging.info(f"Table : {table_id} already exists")
         else:
             bq_client.create_table(dataset_id, table_id, schema)
-            logging.info("Table : {item_table_id} created")
+            logging.info(f"Table : {table_id} created")
 
     
-    # bq_client.load_dataframe_to_table(dataset_id, item_table_id, df_item)
-    # bq_client.load_dataframe_to_table(dataset_id, resources_table_id, df_resources)
-    # bq_client.load_dataframe_to_table(dataset_id, call_number_table_id, df_call_number)
-    # bq_client.load_dataframe_to_table(dataset_id, contributors_table_id, df_contributors)
-    # bq_client.load_dataframe_to_table(dataset_id, subjects_table_id, df_subjects)
-    # bq_client.load_dataframe_to_table(dataset_id, notes_table_id, df_notes)
+    bq_client.load_dataframe_to_table(dataset_id, item_table_id, df_item)
+    bq_client.load_dataframe_to_table(dataset_id, resources_table_id, df_resources)
+    bq_client.load_dataframe_to_table(dataset_id, call_number_table_id, df_call_number)
+    bq_client.load_dataframe_to_table(dataset_id, contributors_table_id, df_contributors)
+    bq_client.load_dataframe_to_table(dataset_id, subjects_table_id, df_subjects)
+    bq_client.load_dataframe_to_table(dataset_id, notes_table_id, df_notes)
 
     # Move the blob to the processed_results bucket
     logging.info("Moving Processed Blob")
@@ -262,7 +262,7 @@ def main():
     # logging.info(f"arg parser passed")
     dataset_id = "supreme_court"
     patterns_file = os.getenv('PATTERNS_FILE', 'exclude.txt')
-    project_id = os.getenv('GCP_PROJECT_ID', 'smart-axis-421517')
+    project_id = os.getenv('GCP_PROJECT_ID', 'strategic-kite-431518-d87')
     bucket_name = os.getenv('BUCKET_NAME', 'processed_results')
     processed_bucket_name = "loc_flattener_processed"
 
