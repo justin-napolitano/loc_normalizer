@@ -41,27 +41,51 @@ def normalize_item(result):
     item_data = result['item']
     df_item = pd.json_normalize(item_data)
     df_item['id'] = result['id']  # Add 'id' for joining
+
+    # Convert lists to JSON strings for columns containing lists
+    for column in df_item.columns:
+        if df_item[column].apply(lambda x: isinstance(x, list)).any():
+            df_item[column] = df_item[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
+
     return df_item
+
 
 def normalize_resources(result):
     resources_data = result['resources']
     df_resources = pd.json_normalize(resources_data)
     df_resources['id'] = result['id']  # Add 'id' for joining
+
+    # Convert lists to JSON strings for columns containing lists
+    for column in df_resources.columns:
+        if df_resources[column].apply(lambda x: isinstance(x, list)).any():
+            df_resources[column] = df_resources[column].apply(lambda x: json.dumps(x) if isinstance(x, list) else x)
+
     return df_resources
+
 
 def normalize_call_numbers(result):
     item_data = result['item']
     call_numbers = item_data.get('call_number', [])
-    df_call_number = pd.DataFrame(call_numbers, columns=['call_number'])
+    
+    # Convert lists to JSON strings
+    call_numbers_str = [json.dumps(call_number) if isinstance(call_number, list) else str(call_number) for call_number in call_numbers]
+    
+    df_call_number = pd.DataFrame(call_numbers_str, columns=['call_number'])
     df_call_number['id'] = result['id']  # Add 'id' for joining
     return df_call_number
+
 
 def normalize_contributors(result):
     item_data = result['item']
     contributors = item_data.get('contributors', [])
-    df_contributors = pd.DataFrame(contributors, columns=['contributors'])
+    
+    # Convert lists to JSON strings
+    contributors_str = [json.dumps(contributor) if isinstance(contributor, list) else str(contributor) for contributor in contributors]
+    
+    df_contributors = pd.DataFrame(contributors_str, columns=['contributors'])
     df_contributors['id'] = result['id']  # Add 'id' for joining
     return df_contributors
+
 
 def normalize_subjects(result):
     item_data = result['item']
@@ -262,9 +286,9 @@ def main():
     # logging.info(f"arg parser passed")
     dataset_id = "supreme_court"
     patterns_file = os.getenv('PATTERNS_FILE', 'exclude.txt')
-    project_id = os.getenv('GCP_PROJECT_ID', 'strategic-kite-431518-d87')
-    bucket_name = os.getenv('BUCKET_NAME', 'processed_results')
-    processed_bucket_name = "loc_flattener_processed"
+    project_id = os.getenv('GCP_PROJECT_ID', 'strategic-kite-431518-d8')
+    bucket_name = os.getenv('BUCKET_NAME', 'loc-unprocessed-results')
+    processed_bucket_name = "loc-processed-results"
 
     credentials_path = None
     if args.local:
