@@ -1,14 +1,14 @@
 ---
 slug: github-loc-normalizer
 id: github-loc-normalizer
-title: 'LOC Normalizer: Normalize Library of Congress Data'
+title: 'LOC Normalizer: Tool for Structuring Library of Congress Data'
 repo: justin-napolitano/loc_normalizer
 githubUrl: https://github.com/justin-napolitano/loc_normalizer
 generatedAt: '2025-11-24T21:35:29.860Z'
 source: github-auto
 summary: >-
-  Explore the LOC Normalizer project for transforming Library of Congress data
-  into a structured database format for knowledge graph construction.
+  Explore the LOC Normalizer project that transforms Library of Congress data
+  into a structured format for knowledge graph construction.
 tags:
   - python
   - docker
@@ -18,7 +18,7 @@ seoSecondaryKeywords:
   - GCP data processing
   - knowledge graph construction
   - docker containerization
-  - JSON data normalization
+  - json data normalization
   - cloud automation workflows
 seoOptimized: true
 topicFamily: null
