@@ -6,8 +6,8 @@ repo: justin-napolitano/loc_normalizer
 githubUrl: https://github.com/justin-napolitano/loc_normalizer
 title: Library of Congress Normalizer Job Setup Guide
 summary: >-
-  A straightforward guide to setting up a Library of Congress normalizer job
-  using Python, Docker, and GCP.
+  A straightforward guide to setting up a Library of Congress normalizer job using Python, Docker,
+  and GCP.
 tags:
   - gcp
   - docker
@@ -24,6 +24,8 @@ seoSecondaryKeywords:
   - virtualenv setup
   - json data ingestion
 seoOptimized: true
+topicFamily: automation
+topicFamilyConfidence: 0.9
 ---
 
 +++
@@ -2274,3 +2276,4 @@ gcloud builds submit --config cloudbuild.yaml .
 ```python
 
 ```
+
