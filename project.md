@@ -7,8 +7,8 @@ githubUrl: https://github.com/justin-napolitano/loc_normalizer
 generatedAt: '2025-11-24T21:35:29.860Z'
 source: github-auto
 summary: >-
-  Explore the LOC Normalizer project that transforms Library of Congress data
-  into a structured format for knowledge graph construction.
+  Explore the LOC Normalizer project that transforms Library of Congress data into a structured
+  format for knowledge graph construction.
 tags:
   - python
   - docker
@@ -21,8 +21,8 @@ seoSecondaryKeywords:
   - json data normalization
   - cloud automation workflows
 seoOptimized: true
-topicFamily: null
-topicFamilyConfidence: null
+topicFamily: datascience
+topicFamilyConfidence: 0.9
 kind: project
 entryLayout: project
 showInProjects: true
@@ -139,3 +139,4 @@ loc_normalizer/
 ---
 
 *Note: Some documentation files and scripts indicate ongoing development and may require updates or completion.*
+
